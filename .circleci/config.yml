@@ -210,8 +210,8 @@ jobs:
             ls -la
       - attach_workspace:
           at: ~/
-      - attach_workspace:
-          at: ./frontend/dist
+      # - attach_workspace:
+      #     at: ./frontend/dist
       
       - run:  
           name: Install Dependencies
