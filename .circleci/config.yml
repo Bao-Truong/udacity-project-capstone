@@ -185,8 +185,7 @@ jobs:
             unzip awscliv2.zip
             ./aws/install
             ls -la /usr/local/bin
-            /usr/local/aws-cli/v2/current/bin/aws --version
-            /usr/local/bin/aws --version
+            which aws
       - run:
           name: Login to ECR
           command: |
