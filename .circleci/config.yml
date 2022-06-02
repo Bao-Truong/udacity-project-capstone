@@ -487,7 +487,7 @@ workflows:
       - build-frontend:
           requires: [install-node-packages-frontend]
       - build-backend:
-          requires: [install-node-packages--backend]
+          requires: [install-node-packages-backend]
       - test-frontend:
           requires: [build-frontend]
       - test-backend:
