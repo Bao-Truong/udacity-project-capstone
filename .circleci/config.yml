@@ -143,10 +143,12 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+            cd ..
+            tar -C frontend -czvf artifact-frontend.tar.gz dist
       - persist_to_workspace:
-          root: ./frontend/node_modules
+          root: ./
           paths:
-            - "*"
+            - "artifact-*"
 
   scan-backend:
     docker:
@@ -161,10 +163,12 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
+            cd ..
+            tar -C backend -czvf artifact-backend.tar.gz dist
       - persist_to_workspace:
-          root: ./backend/node_modules
+          root: ./
           paths:
-            - "*"
+            - "artifact-*"
   create-ecr-registry:
     docker: 
       - image: python:3.7.3-stretch
@@ -187,15 +191,19 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ./frontend/dist
-      - attach_workspace:
-          at: ./backend/dist
+          at: ./
       - run:  
           name: Install Dependencies
           command: |
-            apk add --update curl unzip
+            apk add --update curl unzip tar
             apk add --no-cache aws-cli
             which aws
+      - run:
+          name: unzip artifact
+          command: |
+            ls -la
+            tar -C backend -xvf artifact-backend.tar.gz
+            tar -C frontend -xvf artifact-frontend.tar.gz
       - run:
           name: Build docker images (backend and frontend)
           command: |
@@ -583,7 +591,7 @@ workflows:
           requires: [build-frontend]
       - create-ecr-registry
       - build-and-upload-docker-images:
-          requires: [create-ecr-registry,test-backend,test-frontend]
+          requires: [create-ecr-registry,test-backend,test-frontend,scan-backend,scan-frontend]
       - deploy-infrastructure:
           requires: [build-and-upload-docker-images]
       - deploy-frontend:
