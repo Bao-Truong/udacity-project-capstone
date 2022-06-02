@@ -167,10 +167,11 @@ jobs:
     docker: 
       - image: amazon/aws-cli
     steps:
-      run:
-        name: Deploy ECR resource
-        command: |
-          make create-ecr
+      - checkout
+      - run:
+          name: Deploy ECR resource
+          command: |
+            make create-ecr
           
   build-and-upload-docker-images:
     docker:
