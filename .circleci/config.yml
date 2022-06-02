@@ -163,20 +163,29 @@ jobs:
           root: ./backend/node_modules
           paths:
             - "*"
+  create-ecr-registry:
+    docker: 
+      - image: amazon/aws-cli
+    steps:
+      run:
+        name: Deploy ECR resource
+        command: |
+          make create-ecr
+          
   build-and-upload-docker-images:
     docker:
       - image: 'docker:stable-dind'
     steps:
       - checkout
-      # - attach_workspace:
-      #     at: ./frontend/dist
-      # - attach_workspace:
-      #     at: ./backend/dist
-      # - run:
-      #     name: Build docker images (backend and frontend)
-      #     command: |
-      #       cd dockerfiles
-      #       docker-compose build --no-cache
+      - attach_workspace:
+          at: ./frontend/dist
+      - attach_workspace:
+          at: ./backend/dist
+      - run:
+          name: Build docker images (backend and frontend)
+          command: |
+            cd dockerfiles
+            docker-compose build --no-cache
       - run:  
           name: Install Dependencies
           command: |
@@ -191,9 +200,46 @@ jobs:
       - run:
           name: Upload images to ECR
           command: |
-            echo 0
+            # capstone_backend:latest is defined inside the docker-compose.yml file, make sure 2 places are matched.
+            
+            docker tag capstone_frontend:latest 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
+            docker tag capstone_backend:latest 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
+            docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
+            docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
+  
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create networking resources
+          command: |
+             make create-networking
+      - run:
+          name: Create EKS resources
+          command: |
+            make create-eks
+  
+  deploy-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y awscli tar gzip curl
+            curl -LO "https://dl.k8s.io/release/$(curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl)/bin/linux/amd64/kubectl"
+
+      - run:
+          name: Connect to cluster
+          command: make connect-eks
+      - run:
+          name: Create a Pod
+          command: kubectl apply -f deployment/k8s/app_pod.yml
           
-      
       
             
     
@@ -526,9 +572,13 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - create-ecr-registry
       - build-and-upload-docker-images
-          # requires: ["test-backend","test-frontend"]
-      
+          requires: ["create-ecr-registry","test-backend","test-frontend"]
+      - deploy-infrastructure:
+          requires: ["build-and-upload-docker-images"]
+      - deploy-frontend:
+          requires: ["deploy-infrastructure"]
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:

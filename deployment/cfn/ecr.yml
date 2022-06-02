@@ -35,12 +35,12 @@ Outputs:
     MyRepository:
         Value: !Ref MyRepository
         Export:
-            Name: !Sub "capstone-ecr"
+            Name: !Sub "${RegistryName}"
     EcrArn:
         Value: !GetAtt MyRepository.Arn
         Export:
-            Name: !Sub "capstone-ecr-arn"
+            Name: !Sub "${RegistryName}-arn"
     EcrUri:
         Value: !GetAtt MyRepository.RepositoryUri
         Export:
-            Name: !Sub "capstone-ecr-uri"
+            Name: !Sub "${RegistryName}-uri"

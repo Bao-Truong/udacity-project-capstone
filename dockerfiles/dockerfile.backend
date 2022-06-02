@@ -1,0 +1,7 @@
+FROM nginx:latest
+
+COPY ./backend/dist /usr/share/nginx/html
+
+EXPOSE 80 443 3030
+
+ENTRYPOINT ["pm2","start","npm","--","start"]

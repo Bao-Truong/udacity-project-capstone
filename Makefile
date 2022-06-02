@@ -7,7 +7,15 @@ create-ecr:
               --template-file deployment/cfn/ecr.yml \
               --tags project=capstone \
               --region us-east-2 \
-              --stack-name "capstone-ecr"
+              --stack-name "capstone-ecr-frontend" \
+              --parameter-overrides RegistryName="capstone-ecr-frontend"
+	aws cloudformation deploy \
+              --template-file deployment/cfn/ecr.yml \
+              --tags project=capstone \
+              --region us-east-2 \
+              --stack-name "capstone-ecr-backend" \
+              --parameter-overrides RegistryName="capstone-ecr-backend"
+              
 create-network:
 	aws cloudformation deploy \
               --template-file deployment/cfn/networking.yml \

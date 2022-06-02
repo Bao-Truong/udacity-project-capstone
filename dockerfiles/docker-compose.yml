@@ -1,28 +1,6 @@
 version: "3.3"
 services:
-    # quickapp_be:
-    #     build:
-    #         context: ../
-    #         dockerfile: ./cicd/dockerfile.dotnet
-    #     image: quickapp_be_development:latest
-    #     container_name: quickapp_be_development
-    #     restart: always
-    #     links:
-    #         - "quickapp_db:quickapp_db"
-    #     tty: true
-    #     # environment:
-    #     #     ASPNETCORE_ENVIRONMENT: "development"
-    #     #     ASPNETCORE_URLS: "https://+:6060;http://+:6061"
-    #     #     ASPNETCORE_Kestrel__Certificates__Default__Password: FptPass230399
-    #     #     ASPNETCORE_Kestrel__Certificates__Default__Path: /https/quickapp.pfx
-    #     depends_on:
-    #         - "quickapp_db"
-    #     ports:
-    #         - 6061:6061
-    #         - 6060:6060
-    #     # volumes:
-    #     #     - ~/.aspnet/https:/https:ro            
-                            
+          
     frontend:
         build:
             context: ../
@@ -33,5 +11,15 @@ services:
         restart: always
         ports:
             - 80:80
+    backend:
+        build:
+            context: ../
+            dockerfile: ./dockerfiles/dockerfile.backend
+        image: capstone_backend:latest
+        container_name: capstone_backend
+        tty: true
+        restart: always
+        ports:
+            - 3030:3030
     
         
