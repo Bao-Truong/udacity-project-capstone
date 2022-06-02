@@ -75,6 +75,8 @@ jobs:
           command: |
             cd backend
             npm install
+            apk add --no-cache aws
+            aws --version
       # - persist_to_workspace:
       #     root: ./backend/node_modules
       #     paths:
