@@ -189,13 +189,6 @@ jobs:
           command: |
             echo 0
           
-  
-  upload-image-to-ecr:
-    docker:
-        - image: amazon/aws-cli
-    steps:
-      - checkout
-      -
       
       
             
@@ -529,7 +522,7 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      - build-and-upload-docker-images #:
+      - build-and-upload-docker-images
           # requires: ["test-backend","test-frontend"]
       
       # - deploy-infrastructure:
