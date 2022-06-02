@@ -47,11 +47,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Build front-end
+          name: install front-end
           command: |
             cd frontend
             npm install
-            npm run build
       - persist_to_workspace:
           root: ./frontend/node_modules
           paths:
@@ -63,7 +62,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Back-end build
+          name: Back-end install
           command: |
             cd backend
             npm install
@@ -141,7 +140,6 @@ jobs:
           name: Scan frontend-Critical
           command: |
             cd frontend
-            npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
       - persist_to_workspace:
@@ -158,7 +156,6 @@ jobs:
           name: Scan backend-Critical
           command: |
             cd backend
-            npm install
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
@@ -166,7 +163,43 @@ jobs:
           root: ./backend/node_modules
           paths:
             - "*"
-
+  build-and-upload-docker-images:
+    docker:
+      - image: 'docker:stable-dind'
+    steps:
+      - checkout
+      # - attach_workspace:
+      #     at: ./frontend/dist
+      # - attach_workspace:
+      #     at: ./backend/dist
+      # - run:
+      #     name: Build docker images (backend and frontend)
+      #     command: |
+      #       cd dockerfiles
+      #       docker-compose build --no-cache
+      - run:
+          name: Login to ECR
+          environments:
+            
+          command: |
+            docker run --rm -it -env AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -env AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION amazon/aws-cli ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 956722820961.dkr.ecr.us-east-2.amazonaws.com
+            
+      - run:
+          name: Upload images to ECR
+          command: |
+            echo 0
+          
+  
+  upload-image-to-ecr:
+    docker:
+        - image: amazon/aws-cli
+    steps:
+      - checkout
+      -
+      
+      
+            
+    
   # deploy-infrastructure:
   #   docker:
   #     - image: amazon/aws-cli
@@ -496,6 +529,9 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - build-and-upload-docker-images #:
+          # requires: ["test-backend","test-frontend"]
+      
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
