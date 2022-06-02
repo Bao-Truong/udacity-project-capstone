@@ -294,9 +294,10 @@ jobs:
           name: Create a Pod
           command: |
             ls -la
-            ./kubectl config get-context
+            kubectl config current-context
+            kubectl config get-contexts
             cat ~/.kube/config
-            ./kubectl apply -f deployment/k8s/app_pod.yml
+            kubectl apply -f deployment/k8s/app_pod.yml
           
       
             
