@@ -573,7 +573,7 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
       - create-ecr-registry
-      - build-and-upload-docker-images
+      - build-and-upload-docker-images:
           requires: [create-ecr-registry,test-backend,test-frontend]
       - deploy-infrastructure:
           requires: [build-and-upload-docker-images]
