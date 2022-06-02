@@ -200,7 +200,7 @@ jobs:
           name: Install Dependencies
           command: |
             apk add --update curl unzip tar wget npm nodejs
-            apk add --no-cache aws-cli
+            apk add --no-cache aws-cli docker-compose
             which aws
       - run:
           name: Deploy frontend
