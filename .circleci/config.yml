@@ -201,6 +201,7 @@ jobs:
             cd backend 
             echo backend ----
             ls -la
+            cd ..
             cd frontend
             echo frontend ------
       - attach_workspace:
