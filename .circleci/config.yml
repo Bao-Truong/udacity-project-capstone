@@ -240,14 +240,14 @@ jobs:
           name: Deploy frontend
           command: |
             make connect-eks
-            cd frontend
-            export BACKEND_IP=${kubectl get service -o=jsonpath='{.items[?(@.metadata.name=="capstone-backend")].status.loadBalancer.ingress[0].hostname}'}
+            export BACKEND_IP=$(kubectl get service -o=jsonpath='{.items[?(@.metadata.name=="capstone-backend")].status.loadBalancer.ingress[0].hostname}')
             
             export API_URL="http://${BACKEND_IP}:3030"
             echo $API_URL
             
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> ./frontend/.env
             
+            cd frontend
             npm install
             npm run build
       - run:
