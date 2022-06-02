@@ -276,7 +276,7 @@ jobs:
             apt update
             apt install -y awscli tar gzip curl
             curl -LO "https://dl.k8s.io/release/$(curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl)/bin/linux/amd64/kubectl"
-            chmod +x kubeclt
+            chmod +x kubectl
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             ./aws/install
