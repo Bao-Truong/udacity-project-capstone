@@ -101,14 +101,15 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-backend.tar.gz dist
+            cp artifact-backend.tar.gz ~/artifact-backend.tar.gz
             ls -la
             cd ..
             echo root------------
             ls -la
       - persist_to_workspace:
-          root: ./backend/dist
+          root: ~/
           paths:
-            - "*"
+            - "artifact-backend.tar.gz"
       
 
   test-frontend:
@@ -208,7 +209,7 @@ jobs:
             echo frontend ------
             ls -la
       - attach_workspace:
-          at: ./backend/dist
+          at: ~/
       - attach_workspace:
           at: ./frontend/dist
       
