@@ -183,10 +183,10 @@ jobs:
             
           command: |
             uname -a
-            apk add --update curl
+            apk add --update curl unzip
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            sudo ./aws/install
+            ./aws/install
             
             docker run --rm -it -env AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -env AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION amazon/aws-cli ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 956722820961.dkr.ecr.us-east-2.amazonaws.com
             
