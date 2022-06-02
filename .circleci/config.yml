@@ -235,8 +235,8 @@ jobs:
           name: Deploy frontend
           command: |
             cd frontend
-	          make connect-eks
-	          export BACKEND_IP=${kubectl get service -o=jsonpath='{.items[?(@.metadata.name=="capstone-backend")].status.loadBalancer.ingress[0].hostname}'}
+            make connect-eks
+            export BACKEND_IP=${kubectl get service -o=jsonpath='{.items[?(@.metadata.name=="capstone-backend")].status.loadBalancer.ingress[0].hostname}'}
             
             export API_URL="http://${BACKEND_IP}:3030"
             echo $API_URL
