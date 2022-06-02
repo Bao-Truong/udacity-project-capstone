@@ -88,7 +88,9 @@ jobs:
             cd ..
             tar -C frontend -czvf artifact-frontend.tar.gz dist
       - persist_to_workspace:
-          root: ./artifact-frontend.tar.gz
+          root: ./
+          paths:
+            - "artifact-frontend.tar.gz"
 
   build-backend:
     docker:
@@ -107,8 +109,9 @@ jobs:
             cd ..
             tar -C backend -czvf artifact-backend.tar.gz dist
       - persist_to_workspace:
-          root: ./artifact-backend.tar.gz
-          
+          root: ./
+          paths:
+            - "artifact-backend.tar.gz"
       
 
   test-frontend:
@@ -194,9 +197,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ./artifact-frontend.tar.gz
-      - attach_workspace:
-          at: ./artifact-backend.tar.gz
+          at: ./
       - run:  
           name: Install Dependencies
           command: |
