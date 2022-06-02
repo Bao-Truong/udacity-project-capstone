@@ -136,12 +136,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ./frontend/node_modules
       - run:
           name: Scan frontend-Critical
           command: |
             cd frontend
+            npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
       - persist_to_workspace:
@@ -154,12 +153,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ./backend/node_modules
       - run:
           name: Scan backend-Critical
           command: |
             cd backend
+            npm install
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
