@@ -1,0 +1,22 @@
+Parameters:
+    EnvironmentName:
+        Type: String
+        Default: "capstone"
+Resources:
+    #### NodeGroup
+    EKSNodegroup:
+        Type: 'AWS::EKS::Nodegroup'
+        Properties:
+          ClusterName: 
+                Fn::ImportValue: !Sub "capstone-eks"
+          NodeRole: 'arn:aws:iam::956722820961:role/AmazonEKSNodeRole'
+          CapacityType: "SPOT"
+          ScalingConfig:
+            MinSize: 2
+            DesiredSize: 2
+            MaxSize: 5
+          Labels:
+            project: capstone 
+          Subnets:
+            - Fn::ImportValue: !Sub "${EnvironmentName}-PRI2-SN"
+            - Fn::ImportValue: !Sub "${EnvironmentName}-PRI1-SN"

@@ -1,0 +1,25 @@
+Resources:
+# Use Weave or Flannel CNI instead
+# Weave: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+# Flannel: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+    # CNIAddon:
+    #     Type: AWS::EKS::Addon
+    #     Properties: 
+    #       AddonName: "vpc-cni"
+    #       AddonVersion: "v1.10.1-eksbuild.1"
+    #       ClusterName: 
+    #         Fn::ImportValue: !Sub "capstone-eks"
+    CoreDNSAddon:
+        Type: AWS::EKS::Addon
+        Properties: 
+          AddonName: "coredns"
+          AddonVersion: "v1.8.4-eksbuild.1"
+          ClusterName: 
+                Fn::ImportValue: !Sub "capstone-eks"
+    KubeProxyAddon:
+        Type: AWS::EKS::Addon
+        Properties: 
+          AddonName: "kube-proxy"
+          AddonVersion: "v1.21.2-eksbuild.2"
+          ClusterName: 
+                Fn::ImportValue: !Sub "capstone-eks"

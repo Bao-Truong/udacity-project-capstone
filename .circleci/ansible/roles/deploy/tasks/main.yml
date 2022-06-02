@@ -1,0 +1,22 @@
+---
+- name: Copy build zip file
+  copy:
+    src: "~/project/artifact.tar.gz"
+    dest: "~/artifact.tar.gz"
+
+- name: "unzip"
+  become: true
+  command: "tar -xvf artifact.tar.gz "
+
+- name: "npm install"
+  become: true
+  command: "npm install"
+
+# - name: stop existing pm2 processes if running
+#   command: "pm2 stop default"
+#   become: yes
+
+
+- name: start pm2 process
+  command: 'pm2 start npm -- start'
+  become: yes

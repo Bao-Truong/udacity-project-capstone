@@ -1,0 +1,46 @@
+Parameters:
+    RegistryName:
+        Description: Name for Registry
+        Type: String
+        Default: "capstone-ecr"
+    AWSAccountID:
+        Description: Your AWS Account ID
+        Type: String
+        Default: "956722820961"
+        
+Resources:
+    MyRepository: 
+      Type: AWS::ECR::Repository
+      Properties: 
+        RepositoryName: !Sub ${RegistryName}
+        ImageScanningConfiguration: 
+            ScanOnPush: true
+        RepositoryPolicyText: 
+          Version: "2012-10-17"
+          Statement: 
+            - Sid: AllowPushPull
+              Effect: Allow
+              Principal: 
+                AWS: 
+                  - !Sub "arn:aws:iam::${AWSAccountID}:root"
+              Action: 
+                - "ecr:GetDownloadUrlForLayer"
+                - "ecr:BatchGetImage"
+                - "ecr:BatchCheckLayerAvailability"
+                - "ecr:PutImage"
+                - "ecr:InitiateLayerUpload"
+                - "ecr:UploadLayerPart"
+                - "ecr:CompleteLayerUpload"
+Outputs:
+    MyRepository:
+        Value: !Ref MyRepository
+        Export:
+            Name: !Sub "capstone-ecr"
+    EcrArn:
+        Value: !GetAtt MyRepository.Arn
+        Export:
+            Name: !Sub "capstone-ecr-arn"
+    EcrUri:
+        Value: !GetAtt MyRepository.RepositoryUri
+        Export:
+            Name: !Sub "capstone-ecr-uri"

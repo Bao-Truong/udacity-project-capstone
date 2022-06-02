@@ -1,0 +1,77 @@
+Parameters:
+    ClusterName:
+        Description: "Name for EKS Cluster"
+        Type: String
+        Default: "capstone-cluster"
+    ClusterVersion:
+        Description: "Kubernetes Version"
+        Type: String
+        Default: "1.21"
+    RoleArn:
+        Description: "IAM Role ARN for EKS Cluster"
+        Type: String
+        Default: "arn:aws:iam::956722820961:role/EKSClusterRole"
+    EnvironmentName:
+        Type: String
+        Default: "capstone"
+Resources:
+    EksSG:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+          GroupDescription: Allow all
+          VpcId:
+            Fn::ImportValue:
+              Fn::Sub: "${EnvironmentName}-VPCID"
+          SecurityGroupIngress:
+            - IpProtocol: tcp
+              FromPort: 0
+              ToPort: 0
+              CidrIp: 0.0.0.0/0
+          SecurityGroupEgress:
+            - IpProtocol: -1
+              FromPort: -1
+              ToPort: -1
+              CidrIp: 0.0.0.0/0
+          Tags:
+            - Key: Name
+              Value: "sg-eks-cluster"
+          
+    EKSCluster:
+        Type: AWS::EKS::Cluster
+        Properties:
+          Name: !Sub ${ClusterName}
+          Version: !Sub ${ClusterVersion}
+          RoleArn: !Sub ${RoleArn}
+          ResourcesVpcConfig:
+            SecurityGroupIds:
+              - !Ref EksSG
+            SubnetIds:
+              - Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
+              - Fn::ImportValue: !Sub "${EnvironmentName}-PUB2-SN"
+            EndpointPublicAccess: true
+            EndpointPrivateAccess: true
+            PublicAccessCidrs: [ "42.112.203.0/24" ]
+          Logging:
+            ClusterLogging:
+              EnabledTypes:
+                - Type: api
+                - Type: audit
+          Tags:
+            - Key: "Project"
+              Value: "capstone"
+   
+
+Outputs:
+    Cluster:
+        Value: !Ref EKSCluster
+        Export:
+            Name: "capstone-eks"
+    Arn:
+        Value: !GetAtt EKSCluster.Arn
+        Export:
+            Name: "capstone-eks-arn"
+    Endpoint:
+        Value: !GetAtt EKSCluster.Endpoint
+        Export:
+            Name: "capstone-eks-endpoint"
+    

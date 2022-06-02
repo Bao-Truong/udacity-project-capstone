@@ -1,0 +1,54 @@
+Description: >
+  UdaPeople backend stack.
+
+Parameters:
+  ID:
+    Description: Unique identifier.
+    Type: String
+
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub UdaPeople-${ID}
+      GroupDescription: Allow port 22 and port 3030.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3030
+          ToPort: 3030
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      KeyName: global_window_key
+      ImageId: "ami-0eea504f45ef7a8f7"
+      Tags:
+        - Key: Name
+          Value: !Sub backend-${ID}
+
+Outputs:
+  PriviateDnsName:
+    Value: !GetAtt EC2Instance.PrivateDnsName
+  PrivateIp:
+    Value: !GetAtt EC2Instance.PrivateIp
+  PublicDnsName:
+    Value: !GetAtt EC2Instance.PublicDnsName
+  PublicIp:
+    Value: !GetAtt EC2Instance.PublicIp
+  ID:
+    Description: unique identifier
+    Value: !Sub ${ID}
+    # Export:
+    #   Name: !Sub "UniqueID"
