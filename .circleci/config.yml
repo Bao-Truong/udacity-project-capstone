@@ -71,7 +71,7 @@ jobs:
           paths:
             - "*"
             
-  build-sourcecode:
+  build-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -85,9 +85,17 @@ jobs:
             npm install
             npm run build
             ls -la
-            cd ..
-            tar -C frontend -czvf artifact-frontend.tar.gz dist
-      
+            tar -czvf artifact-frontend.tar.gz dist
+      - persist_to_workspace:
+          root: ./frontend
+          paths:
+            - "artifact-*"
+
+  build-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
       - attach_workspace:
           at: ./backend/node_modules
       - run:
@@ -97,12 +105,12 @@ jobs:
             npm install
             npm run build
             ls -la
-            cd ..
-            tar -C backend -czvf artifact-backend.tar.gz dist
+            tar -czvf artifact-backend.tar.gz dist
       - persist_to_workspace:
-          root: ./
+          root: ./backend
           paths:
             - "artifact-*"
+      
 
   test-frontend:
     docker:
@@ -187,7 +195,9 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ./
+          at: ./backend
+      - attach_workspace:
+          at: ./frontend
       - run:  
           name: Install Dependencies
           command: |
@@ -586,12 +596,14 @@ workflows:
       - test-backend:
           requires: [install-node-packages-backend]
           
-      - build-sourcecode:
-          requires: [scan-frontend,scan-backend]
+      - build-frontend:
+          requires: [scan-frontend]
+      - build-backend:
+          requires: [scan-backend]
       
       - create-ecr-registry
       - build-and-upload-docker-images:
-          requires: [create-ecr-registry,build-sourcecode]
+          requires: [create-ecr-registry,build-frontend,build-backend]
       - deploy-infrastructure:
           requires: [build-and-upload-docker-images]
       - deploy-frontend:
