@@ -247,9 +247,15 @@ jobs:
   
   deploy-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7.3-stretch
     steps:
       - checkout
+      - run:  
+          name: Install Dependencies
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
       - run:
           name: Create networking resources
           command: |
@@ -261,15 +267,18 @@ jobs:
   
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7.3-stretch
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            sudo apt update
-            sudo apt install -y awscli tar gzip curl
+            apt update
+            apt install -y awscli tar gzip curl
             curl -LO "https://dl.k8s.io/release/$(curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl)/bin/linux/amd64/kubectl"
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
 
       - run:
           name: Connect to cluster
@@ -302,10 +311,10 @@ workflows:
           requires: [scan-backend]
       
       # - create-ecr-registry
-      - build-and-upload-docker-images
+      # - build-and-upload-docker-images
           # requires: [build-frontend,build-backend]
-      - deploy-infrastructure:
-          requires: [build-and-upload-docker-images]
+      - deploy-infrastructure
+          # requires: [build-and-upload-docker-images]
       - deploy-frontend:
           requires: [deploy-infrastructure]
       
