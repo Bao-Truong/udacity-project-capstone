@@ -301,8 +301,8 @@ workflows:
           requires: [scan-backend]
       
       # - create-ecr-registry
-      - build-and-upload-docker-images:
-          requires: [build-frontend,build-backend]
+      - build-and-upload-docker-images
+          # requires: [build-frontend,build-backend]
       - deploy-infrastructure:
           requires: [build-and-upload-docker-images]
       - deploy-frontend:
