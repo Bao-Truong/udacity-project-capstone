@@ -71,7 +71,7 @@ jobs:
           paths:
             - "*"
             
-  build-frontend:
+  build-sourcecode:
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -87,16 +87,7 @@ jobs:
             ls -la
             cd ..
             tar -C frontend -czvf artifact-frontend.tar.gz dist
-      - persist_to_workspace:
-          root: ./
-          paths:
-            - "artifact-frontend.tar.gz"
-
-  build-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
+      
       - attach_workspace:
           at: ./backend/node_modules
       - run:
@@ -111,8 +102,7 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
-            - "artifact-backend.tar.gz"
-      
+            - "artifact-*"
 
   test-frontend:
     docker:
@@ -196,8 +186,8 @@ jobs:
       - image: 'docker:stable-dind'
     steps:
       - checkout
-      # - attach_workspace:
-      #     at: ./
+      - attach_workspace:
+          at: ./
       - run:  
           name: Install Dependencies
           command: |
@@ -596,14 +586,12 @@ workflows:
       - test-backend:
           requires: [install-node-packages-backend]
           
-      - build-frontend:
-          requires: [scan-frontend]
-      - build-backend:
-          requires: [scan-backend]
+      - build-sourcecode:
+          requires: [scan-frontend,scan-backend]
       
       - create-ecr-registry
       - build-and-upload-docker-images:
-          requires: [create-ecr-registry,build-frontend,build-backend]
+          requires: [create-ecr-registry,build-sourcecode]
       - deploy-infrastructure:
           requires: [build-and-upload-docker-images]
       - deploy-frontend:
