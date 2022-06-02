@@ -285,7 +285,9 @@ jobs:
           command: make connect-eks
       - run:
           name: Create a Pod
-          command: kubectl apply -f deployment/k8s/app_pod.yml
+          command: |
+            ls -la
+            ./kubectl apply -f deployment/k8s/app_pod.yml
           
       
             
@@ -311,12 +313,12 @@ workflows:
           requires: [scan-backend]
       
       # - create-ecr-registry
-      # - build-and-upload-docker-images
+      # - build-and-upload-docker-images:
           # requires: [build-frontend,build-backend]
-      - deploy-infrastructure
+      # - deploy-infrastructure:
           # requires: [build-and-upload-docker-images]
-      - deploy-frontend:
-          requires: [deploy-infrastructure]
+      - deploy-frontend
+          # requires: [deploy-infrastructure]
       
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
