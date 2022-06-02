@@ -196,8 +196,8 @@ jobs:
       - image: 'docker:stable-dind'
     steps:
       - checkout
-      - attach_workspace:
-          at: ./
+      # - attach_workspace:
+      #     at: ./
       - run:  
           name: Install Dependencies
           command: |
