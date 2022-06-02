@@ -76,8 +76,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ./frontend/node_modules
       - run:
           name: Build front-end
           command: |
@@ -96,16 +94,17 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ./backend/node_modules
       - run:
           name: Back-end build
           command: |
             cd backend
             npm install
             npm run build
-            ls -la
             tar -czvf artifact-backend.tar.gz dist
+            ls -la
+            cd ..
+            echo root------------
+            ls -la
       - persist_to_workspace:
           root: ./backend/dist
           paths:
@@ -194,6 +193,16 @@ jobs:
       - image: 'docker:stable-dind'
     steps:
       - checkout
+      - run:
+          name: checking
+          command: |
+            echo current-----
+            ls -la
+            cd backend 
+            echo backend ----
+            ls -la
+            cd frontend
+            echo frontend ------
       - attach_workspace:
           at: ./backend/dist
       - attach_workspace:
