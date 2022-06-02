@@ -256,16 +256,6 @@ jobs:
             cd backend
             npm install
             npm run build
-            
-      # - run:
-      #     name: unzip artifact
-      #     command: |
-            
-      #       tar -C backend -xf artifact-backend.tar.gz
-      #       tar -C frontend -xf artifact-frontend.tar.gz
-      #       ls -la ./backend
-      #       echo ---
-      #       ls -la ./frontend
       - run:
           name: Build docker images (backend and frontend)
           command: |
@@ -274,8 +264,7 @@ jobs:
       - run:
           name: Login to ECR
           command: |
-            $(aws ecr get-login --no-include-email --region us-east-2)
-            # docker login -u AWS -p $(aws ecr get-login-password --region us-east-2) 956722820961.dkr.ecr.us-east-2.amazonaws.com
+            $(aws ecr get-login --no-include-email --region us-east-2) #AWSCLI v1
       - run:
           name: Upload images to ECR
           command: |
@@ -307,13 +296,10 @@ jobs:
             unzip -q awscliv2.zip
             ./aws/install
       - run:
-          name: Connect to cluster
-          command: make connect-eks
-      - run:
           name: Connect to EKS
           command: make connect-eks
       - run:
-          name: Create a Pod
+          name: Create deployment
           command: |
             ls -la
             kubectl config current-context
