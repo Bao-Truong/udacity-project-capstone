@@ -41,6 +41,15 @@ commands:
             fi
 
 jobs:
+  sample:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: |
+            uname -a
   install-node-packages-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -593,32 +602,32 @@ jobs:
 workflows:
   default:
     jobs:
-      # - always_fail:
-      #     context: slack
-      - install-node-packages-frontend
-      - install-node-packages-backend
-      - scan-frontend:
-          requires: [install-node-packages-frontend]
-      - scan-backend:
-          requires: [install-node-packages-backend]
+      - sample
+      # - install-node-packages-frontend
+      # - install-node-packages-backend
+      # - scan-frontend:
+      #     requires: [install-node-packages-frontend]
+      # - scan-backend:
+      #     requires: [install-node-packages-backend]
           
-      - test-frontend:
-          requires: [install-node-packages-frontend]
-      - test-backend:
-          requires: [install-node-packages-backend]
+      # - test-frontend:
+      #     requires: [install-node-packages-frontend]
+      # - test-backend:
+      #     requires: [install-node-packages-backend]
           
-      - build-frontend:
-          requires: [scan-frontend]
-      - build-backend:
-          requires: [scan-backend]
+      # - build-frontend:
+      #     requires: [scan-frontend]
+      # - build-backend:
+      #     requires: [scan-backend]
       
-      # - create-ecr-registry
-      - build-and-upload-docker-images:
-          requires: [build-frontend,build-backend]
-      - deploy-infrastructure:
-          requires: [build-and-upload-docker-images]
-      - deploy-frontend:
-          requires: [deploy-infrastructure]
+      # # - create-ecr-registry
+      # - build-and-upload-docker-images:
+      #     requires: [build-frontend,build-backend]
+      # - deploy-infrastructure:
+      #     requires: [build-and-upload-docker-images]
+      # - deploy-frontend:
+      #     requires: [deploy-infrastructure]
+      
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
