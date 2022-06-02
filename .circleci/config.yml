@@ -190,7 +190,31 @@ jobs:
           name: Deploy ECR resource
           command: |
             make create-ecr
-          
+
+  deploy-infrastructure:
+    docker:
+      - image: python:3.7.3-stretch
+    steps:
+      - checkout
+      - run:  
+          name: Install Dependencies
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
+      - run:
+          name: Create networking resources
+          command: |
+             make create-network
+      - run:
+          name: Create EKS clsuter
+          command: |
+            make create-eks
+      - run:
+          name: Create EKS services
+          command: |
+            make create-service
+            
   build-and-upload-docker-images:
     docker:
       - image: 'docker:stable-dind'
@@ -200,13 +224,25 @@ jobs:
       - run:  
           name: Install Dependencies
           command: |
-            apk add --update curl unzip tar wget npm nodejs
+            apk add --update curl unzip tar wget npm nodejs make
             apk add --no-cache aws-cli docker-compose
             which aws
+            
+            curl -LO "https://dl.k8s.io/$(curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl)/bin/linux/amd64/kubectl.sha256"
+            chmod +x kubectl
+            install -o root -g root -m 0755 ./kubectl /usr/local/bin/kubectl
       - run:
           name: Deploy frontend
           command: |
             cd frontend
+	          make connect-eks
+	          export BACKEND_IP=${kubectl get service -o=jsonpath='{.items[?(@.metadata.name=="capstone-backend")].status.loadBalancer.ingress[0].hostname}'}
+            
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo $API_URL
+            
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            
             npm install
             npm run build
       - run:
@@ -245,25 +281,6 @@ jobs:
             docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
             docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
   
-  deploy-infrastructure:
-    docker:
-      - image: python:3.7.3-stretch
-    steps:
-      - checkout
-      - run:  
-          name: Install Dependencies
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            ./aws/install
-      - run:
-          name: Create networking resources
-          command: |
-             make create-network
-      - run:
-          name: Create EKS resources
-          command: |
-            make create-eks
   
   deploy-frontend:
     docker:
@@ -297,7 +314,7 @@ jobs:
             kubectl config current-context
             kubectl config get-contexts
             cat ~/.kube/config
-            kubectl apply -f deployment/k8s/app_pod.yml
+            kubectl apply -f deployment/k8s/deployment.yml
           
       
             
@@ -322,17 +339,11 @@ workflows:
       - build-backend:
           requires: [scan-backend]
       
-      # - create-ecr-registry
-      # - build-and-upload-docker-images:
-          # requires: [build-frontend,build-backend]
-      # - deploy-infrastructure:
-          # requires: [build-and-upload-docker-images]
-      - deploy-frontend
-          # requires: [deploy-infrastructure]
-      
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
+      - create-ecr-registry
+      - deploy-infrastructure:
+          requires: [build-frontend,build-backend]
+      - build-and-upload-docker-images:
+          requires: [deploy-infrastructure]
+      - deploy-frontend:
+          requires: [deploy-infrastructure]
      

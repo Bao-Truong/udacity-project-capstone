@@ -4,4 +4,4 @@ COPY ./frontend/dist /usr/share/nginx/html
 
 EXPOSE 80 443
 
-ENTRYPOINT ["pm2","start","npm","--","start"]
+

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: capstone-frontend
+  name: capstone-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: capstone-frontend
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: capstone-frontend
+    spec:
+      containers:
+      - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
+        name: capstone-ecr-frontend
+        resources: {}
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: capstone-backend
+  name: capstone-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: capstone-backend
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: capstone-backend
+    spec:
+      containers:
+      - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
+        name: capstone-ecr-backend
+        resources: {}
+status: {}

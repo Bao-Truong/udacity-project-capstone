@@ -49,3 +49,13 @@ connect-eks:
 	aws eks --region us-east-2 update-kubeconfig --name capstone-cluster
 	
 ################################## DEPLOY################################## 	
+create-deployment: 
+	kubectl apply -f deployment/k8s/deployment.yml
+create-service:
+	kubectl apply -f deployment/k8s/service.yml
+	
+create-all-resources: create-deployment create-service
+
+get-backend-service-dns:
+	API_URL=${kubectl get service -o=jsonpath='{.items[?(@.metadata.name=="capstone-backend")].status.loadBalancer.ingress[0].hostname}'}
+	export API_URL

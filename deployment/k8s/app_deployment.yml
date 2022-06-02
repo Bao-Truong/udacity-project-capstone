@@ -18,7 +18,7 @@ spec:
         app: app
     spec:
       containers:
-      - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/udacity-container-ml:v1.0.0
+      - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
         name: udacity-container-ml
         resources: {}
 status: {}

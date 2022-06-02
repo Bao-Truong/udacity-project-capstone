@@ -2,6 +2,8 @@ FROM nginx:latest
 
 COPY ./backend/dist /usr/share/nginx/html
 
+RUN npm install pm2@latest -g
+
 EXPOSE 80 443 3030
 
 ENTRYPOINT ["pm2","start","npm","--","start"]
