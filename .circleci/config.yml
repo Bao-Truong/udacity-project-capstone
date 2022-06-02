@@ -47,19 +47,22 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install dependencies
+          name: install aws
           command: |
             uname -a
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
-            
+      - run:
+          name: install aws
+          command: |  
             sudo apt-get update
             sudo apt-get install \
                 ca-certificates \
                 curl \
                 gnupg \
-                lsb-release
+                lsb-release \
+                apt-transport-https
             sudo mkdir -p /etc/apt/keyrings
             curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
             echo \
