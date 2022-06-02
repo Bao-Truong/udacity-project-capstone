@@ -86,7 +86,7 @@ jobs:
             npm run build
             ls -la
             cd ..
-            tar -C backend -czvf artifact-backend.tar.gz dist
+            tar -C frontend -czvf artifact-frontend.tar.gz dist
       - persist_to_workspace:
           root: ./
           paths:
