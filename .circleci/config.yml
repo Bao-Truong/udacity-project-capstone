@@ -51,10 +51,10 @@ jobs:
           command: |
             cd frontend
             npm install
-      - persist_to_workspace:
-          root: ./frontend/node_modules
-          paths:
-            - "*"
+      # - persist_to_workspace:
+      #     root: ./frontend/node_modules
+      #     paths:
+      #       - "*"
 
   install-node-packages-backend:
     docker:
@@ -66,10 +66,10 @@ jobs:
           command: |
             cd backend
             npm install
-      - persist_to_workspace:
-          root: ./backend/node_modules
-          paths:
-            - "*"
+      # - persist_to_workspace:
+      #     root: ./backend/node_modules
+      #     paths:
+      #       - "*"
             
   build-frontend:
     docker:
@@ -116,12 +116,13 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ./frontend/node_modules
+      # - attach_workspace:
+      #     at: ./frontend/node_modules
       - run:
           name: Test Front-end
           command: |
             cd frontend
+            npm install
             npm run test
 
   test-backend:
@@ -129,12 +130,13 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ./backend/node_modules
+      # - attach_workspace:
+      #     at: ./backend/node_modules
       - run:
           name: Test Backend-end
           command: |
             cd backend
+            npm install
             npm run test
 
   scan-frontend:
@@ -204,10 +206,12 @@ jobs:
             cd ..
             cd frontend
             echo frontend ------
+            ls -la
       - attach_workspace:
           at: ./backend/dist
       - attach_workspace:
           at: ./frontend/dist
+      
       - run:  
           name: Install Dependencies
           command: |
@@ -611,9 +615,9 @@ workflows:
       - build-backend:
           requires: [scan-backend]
       
-      - create-ecr-registry
+      # - create-ecr-registry
       - build-and-upload-docker-images:
-          requires: [create-ecr-registry,build-frontend,build-backend]
+          requires: [build-frontend,build-backend]
       - deploy-infrastructure:
           requires: [build-and-upload-docker-images]
       - deploy-frontend:
