@@ -136,6 +136,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - attach_workspace:
+          at: ./frontend/node_modules
       - run:
           name: Scan frontend-Critical
           command: |
@@ -152,6 +154,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - attach_workspace:
+          at: ./backend/node_modules
       - run:
           name: Scan backend-Critical
           command: |
@@ -174,7 +178,6 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             ./aws/install
-            
       - run:
           name: Deploy ECR resource
           command: |
