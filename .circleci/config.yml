@@ -217,6 +217,7 @@ jobs:
       - run:
           name: Create EKS services
           command: |
+            make connect-eks
             make create-service
             
   build-and-upload-docker-images:
