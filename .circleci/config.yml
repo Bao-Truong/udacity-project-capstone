@@ -196,6 +196,7 @@ jobs:
       - image: 'docker:stable-dind'
     steps:
       - checkout
+      - setup_remote_docker
       - run:  
           name: Install Dependencies
           command: |
