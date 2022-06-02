@@ -196,23 +196,6 @@ jobs:
       - image: 'docker:stable-dind'
     steps:
       - checkout
-      - run:
-          name: checking
-          command: |
-            echo current-----
-            ls -la
-            cd backend 
-            echo backend ----
-            ls -la
-            cd ..
-            cd frontend
-            echo frontend ------
-            ls -la
-      - attach_workspace:
-          at: ~/
-      # - attach_workspace:
-      #     at: ./frontend/dist
-      
       - run:  
           name: Install Dependencies
           command: |
@@ -220,14 +203,27 @@ jobs:
             apk add --no-cache aws-cli
             which aws
       - run:
-          name: unzip artifact
+          name: Deploy frontend
           command: |
+            cd frontend
+            npm install
+            npm run build
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm install
+            npm run build
             
-            tar -C backend -xf artifact-backend.tar.gz
-            tar -C frontend -xf artifact-frontend.tar.gz
-            ls -la ./backend
-            echo ---
-            ls -la ./frontend
+      # - run:
+      #     name: unzip artifact
+      #     command: |
+            
+      #       tar -C backend -xf artifact-backend.tar.gz
+      #       tar -C frontend -xf artifact-frontend.tar.gz
+      #       ls -la ./backend
+      #       echo ---
+      #       ls -la ./frontend
       - run:
           name: Build docker images (backend and frontend)
           command: |
