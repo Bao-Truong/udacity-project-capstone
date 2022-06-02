@@ -285,9 +285,13 @@ jobs:
           name: Connect to cluster
           command: make connect-eks
       - run:
+          name: Connect to EKS
+          command: make connect-eks
+      - run:
           name: Create a Pod
           command: |
             ls -la
+            
             ./kubectl apply -f deployment/k8s/app_pod.yml
           
       
