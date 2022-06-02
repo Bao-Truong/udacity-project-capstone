@@ -165,9 +165,15 @@ jobs:
             - "*"
   create-ecr-registry:
     docker: 
-      - image: amazon/aws-cli
+      - image: python:3.7.3-stretch
     steps:
       - checkout
+      - run:  
+          name: Install Dependencies
+          command: |
+            sudo apt update
+            sudo apt-get install -y awscli
+            
       - run:
           name: Deploy ECR resource
           command: |
@@ -182,17 +188,17 @@ jobs:
           at: ./frontend/dist
       - attach_workspace:
           at: ./backend/dist
-      - run:
-          name: Build docker images (backend and frontend)
-          command: |
-            cd dockerfiles
-            docker-compose build --no-cache
       - run:  
           name: Install Dependencies
           command: |
             apk add --update curl unzip
             apk add --no-cache aws-cli
             which aws
+      - run:
+          name: Build docker images (backend and frontend)
+          command: |
+            cd dockerfiles
+            docker-compose build --no-cache
       - run:
           name: Login to ECR
           command: |
