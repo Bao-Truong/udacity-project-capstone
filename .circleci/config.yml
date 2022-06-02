@@ -483,7 +483,7 @@ workflows:
       # - always_fail:
       #     context: slack
       - install-node-packages-frontend
-      - install-node-packages--backend
+      - install-node-packages-backend
       - build-frontend:
           requires: [install-node-packages-frontend]
       - build-backend:
