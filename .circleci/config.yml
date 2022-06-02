@@ -259,7 +259,7 @@ jobs:
       - run:
           name: Create networking resources
           command: |
-             make create-networking
+             make create-network
       - run:
           name: Create EKS resources
           command: |
