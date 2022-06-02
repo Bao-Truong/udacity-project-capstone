@@ -177,18 +177,20 @@ jobs:
       #     command: |
       #       cd dockerfiles
       #       docker-compose build --no-cache
-      - run:
-          name: Login to ECR
-          environments:
-            
+      - run:  
+          name: Install Dependencies
           command: |
-            uname -a
             apk add --update curl unzip
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             ./aws/install
-            /usr/local/bin/aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 956722820961.dkr.ecr.us-east-2.amazonaws.com
-            
+            /usr/local/bin/aws --version
+            ls -la /usr/local/bin
+      - run:
+          name: Login to ECR
+          command: |
+            docker login -u AWS -p $(/usr/local/bin/aws ecr get-login-password --region us-east-2) 956722820961.dkr.ecr.us-east-2.amazonaws.com
+
       - run:
           name: Upload images to ECR
           command: |
