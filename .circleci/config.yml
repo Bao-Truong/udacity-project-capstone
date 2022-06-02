@@ -275,9 +275,9 @@ jobs:
           command: |
             apt update
             apt install -y awscli tar gzip curl
-            curl -LO "https://dl.k8s.io/release/$(curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl)/bin/linux/amd64/kubectl"
+            curl -LO "https://dl.k8s.io/$(curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl)/bin/linux/amd64/kubectl.sha256"
             chmod +x kubectl
-            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            install -o root -g root -m 0755 ./kubectl /usr/local/bin/kubectl
       - run:
           name: install awscli
           command: |
