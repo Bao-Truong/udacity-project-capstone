@@ -70,6 +70,7 @@ jobs:
           root: ./backend/node_modules
           paths:
             - "*"
+            
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -82,10 +83,13 @@ jobs:
           command: |
             cd frontend
             npm run build
+            ls -la
+            cd ..
+            tar -C backend -czvf artifact-backend.tar.gz dist
       - persist_to_workspace:
-          root: ./frontend/dist
+          root: ./
           paths:
-            - "*"
+            - "artifact-*"
 
   build-backend:
     docker:
@@ -99,11 +103,14 @@ jobs:
           command: |
             cd backend
             npm run build
+            ls -la
+            cd ..
+            tar -C backend -czvf artifact-backend.tar.gz dist
       - persist_to_workspace:
-          root: ./backend/dist
+          root: ./
           paths:
-            - "*"
-
+            - "artifact-*"
+      
 
   test-frontend:
     docker:
@@ -143,12 +150,10 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
-            cd ..
-            tar -C frontend -czvf artifact-frontend.tar.gz dist
       - persist_to_workspace:
-          root: ./
+          root: ./frontend/node_modules
           paths:
-            - "artifact-*"
+            - "*"
 
   scan-backend:
     docker:
@@ -163,12 +168,11 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-            cd ..
-            tar -C backend -czvf artifact-backend.tar.gz dist
       - persist_to_workspace:
-          root: ./
+          root: ./backend/node_modules
           paths:
-            - "artifact-*"
+            - "*"
+            
   create-ecr-registry:
     docker: 
       - image: python:3.7.3-stretch
@@ -577,21 +581,24 @@ workflows:
       #     context: slack
       - install-node-packages-frontend
       - install-node-packages-backend
-      - build-frontend:
-          requires: [install-node-packages-frontend]
-      - build-backend:
-          requires: [install-node-packages-backend]
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
       - scan-frontend:
-          requires: [build-frontend]
+          requires: [install-node-packages-frontend]
+      - scan-backend:
+          requires: [install-node-packages-backend]
+          
+      - test-frontend:
+          requires: [install-node-packages-frontend]
+      - test-backend:
+          requires: [install-node-packages-backend]
+          
+      - build-frontend:
+          requires: [scan-frontend]
+      - build-backend:
+          requires: [scan-backend]
+      
       - create-ecr-registry
       - build-and-upload-docker-images:
-          requires: [create-ecr-registry,test-backend,test-frontend,scan-backend,scan-frontend]
+          requires: [create-ecr-registry,build-frontend,build-backend]
       - deploy-infrastructure:
           requires: [build-and-upload-docker-images]
       - deploy-frontend:
