@@ -20,6 +20,7 @@ spec:
       containers:
       - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
         name: capstone-ecr-frontend
+        imagePullPolicy: "Always"
         resources: {}
 status: {}
 ---
@@ -45,5 +46,6 @@ spec:
       containers:
       - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
         name: capstone-ecr-backend
+        imagePullPolicy: "Always"
         resources: {}
 status: {}

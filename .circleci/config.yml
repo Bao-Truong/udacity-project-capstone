@@ -392,7 +392,6 @@ jobs:
             docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
             docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
   
-  
   deploy-server:
     docker:
       - image: python:3.7.3-stretch
