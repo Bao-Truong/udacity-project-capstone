@@ -235,6 +235,7 @@ jobs:
           command: |
             make connect-eks
             make create-service
+            kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
             
   build-and-upload-docker-images:
     docker:
