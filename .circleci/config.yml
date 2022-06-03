@@ -248,6 +248,31 @@ jobs:
           paths:
             - "*"
             
+  lint-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          command: Running lint on frontend code
+          command: |
+            cd frontend
+            npm install
+            npm run lint
+  
+  lint-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          command: Running lint on backend code
+          command: |
+            cd backend
+            npm install
+            npm run lint
+            
+    
   create-ecr-registry:
     docker: 
       - image: python:3.7.3-stretch
@@ -443,11 +468,16 @@ workflows:
           requires: [install-node-packages-frontend]
       - test-backend:
           requires: [install-node-packages-backend]
+      
+      - lint-frontend:
+          requires: [scan-frontend]
+      - lint-backend:
+          requires: [scan-backend]
           
       - build-frontend:
-          requires: [scan-frontend]
+          requires: [lint-frontend]
       - build-backend:
-          requires: [scan-backend]
+          requires: [lint-backend]
       
       - create-ecr-registry
       - deploy-infrastructure:
