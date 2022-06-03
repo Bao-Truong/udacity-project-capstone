@@ -50,7 +50,7 @@ Resources:
               - Fn::ImportValue: !Sub "${EnvironmentName}-PUB2-SN"
             EndpointPublicAccess: true
             EndpointPrivateAccess: true
-            PublicAccessCidrs: [ "42.112.203.0/24" ]
+            PublicAccessCidrs: [ "0.0.0.0/0" ]
           Logging:
             ClusterLogging:
               EnabledTypes:

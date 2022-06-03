@@ -221,14 +221,17 @@ jobs:
             install -o root -g root -m 0755 ./kubectl /usr/local/bin/kubectl
       - run:
           name: Create networking resources
+          no_output_timeout: 30m
           command: |
              make create-network
       - run:
           name: Create EKS clsuter
+          no_output_timeout: 30m
           command: |
             make create-eks
       - run:
           name: Create EKS services
+          no_output_timeout: 30m
           command: |
             make connect-eks
             make create-service
