@@ -254,7 +254,7 @@ jobs:
     steps:
       - checkout
       - run:
-          command: Running lint on frontend code
+          name: Running lint on frontend code
           command: |
             cd frontend
             npm install
@@ -266,7 +266,7 @@ jobs:
     steps:
       - checkout
       - run:
-          command: Running lint on backend code
+          name: Running lint on backend code
           command: |
             cd backend
             npm install
