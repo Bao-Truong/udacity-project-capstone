@@ -421,10 +421,10 @@ jobs:
             kubectl config current-context
             kubectl config get-contexts
             cat ~/.kube/config
+            sed -e 's,BACKEND_IMAGE_VERSION,'${CIRCLE_WORKFLOW_ID:0:7}',g' < deployment/k8s/deployment_template.yml > deployment/k8s/deployment.yml
+            sed -e 's,FRONTEND_IMAGE_VERSION,'${CIRCLE_WORKFLOW_ID:0:7}',g' < deployment/k8s/deployment_template.yml > deployment/k8s/deployment.yml
             kubectl apply -f deployment/k8s/deployment.yml
           
-      
-            
     
 workflows:
   default:

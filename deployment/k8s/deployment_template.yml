@@ -18,7 +18,7 @@ spec:
         app: capstone-frontend
     spec:
       containers:
-      - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
+      - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:FRONTEND_IMAGE_VERSION
         name: capstone-ecr-frontend
         imagePullPolicy: "Always"
         resources: {}
@@ -44,7 +44,7 @@ spec:
         app: capstone-backend
     spec:
       containers:
-      - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
+      - image: 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:BACKEND_IMAGE_VERSION
         name: capstone-ecr-backend
         imagePullPolicy: "Always"
         resources: {}
