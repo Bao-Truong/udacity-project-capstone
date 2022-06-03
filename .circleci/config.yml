@@ -426,31 +426,31 @@ workflows:
   default:
     jobs:
       # - sample
-      - RunThis
-      # - install-node-packages-frontend
-      # - install-node-packages-backend
-      # - scan-frontend:
-      #     requires: [install-node-packages-frontend]
-      # - scan-backend:
-      #     requires: [install-node-packages-backend]
+      # - RunThis
+      - install-node-packages-frontend
+      - install-node-packages-backend
+      - scan-frontend:
+          requires: [install-node-packages-frontend]
+      - scan-backend:
+          requires: [install-node-packages-backend]
           
-      # - test-frontend:
-      #     requires: [install-node-packages-frontend]
-      # - test-backend:
-      #     requires: [install-node-packages-backend]
+      - test-frontend:
+          requires: [install-node-packages-frontend]
+      - test-backend:
+          requires: [install-node-packages-backend]
           
-      # - build-frontend:
-      #     requires: [scan-frontend]
-      # - build-backend:
-      #     requires: [scan-backend]
+      - build-frontend:
+          requires: [scan-frontend]
+      - build-backend:
+          requires: [scan-backend]
       
-      # - create-ecr-registry
-      # - deploy-infrastructure:
-      #     requires: [build-frontend,build-backend]
-      # - run-migrations:
-      #     requires: [deploy-infrastructure]
-      # - build-and-upload-docker-images:
-      #     requires: [run-migrations]
-      # - deploy-server:
-      #     requires: [build-and-upload-docker-images]
+      - create-ecr-registry
+      - deploy-infrastructure:
+          requires: [build-frontend,build-backend]
+      - run-migrations:
+          requires: [deploy-infrastructure]
+      - build-and-upload-docker-images:
+          requires: [run-migrations]
+      - deploy-server:
+          requires: [build-and-upload-docker-images]
      
