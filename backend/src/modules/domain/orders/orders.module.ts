@@ -20,7 +20,7 @@ import { PassportModule} from '@nestjs/passport';
     CommonModule,
     TypeOrmModule.forFeature([Product, Order]),
     AuthModule,
-    PassportModule.register({ defaultStrategy: 'jwt' })
+    PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [OrdersController],
   providers: [

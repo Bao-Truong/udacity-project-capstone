@@ -29,5 +29,5 @@ export const CommandHandlers = [
   EmployeeSalaryUpdater,
   EmployeeSalaryTypeUpdater,
   EmployeeEffectiveDateUpdater,
-  EmployeeBirthDateUpdater
+  EmployeeBirthDateUpdater,
 ];
