@@ -1,6 +1,9 @@
-FROM nginx:latest
+FROM node:16
 
-COPY ./backend/dist /usr/share/nginx/html
+# Create app directory
+WORKDIR /usr/src/app
+
+COPY ./backend/dist .
 
 RUN npm install pm2@latest -g
 
