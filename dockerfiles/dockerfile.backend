@@ -23,7 +23,7 @@ ENV TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR
 # Create app directory
 WORKDIR /usr/src/app
 
-COPY ./backend/dist/ .
+COPY ./backend/ .
 
 RUN npm install pm2@latest -g
 
