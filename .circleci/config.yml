@@ -41,15 +41,18 @@ commands:
             fi
 
 jobs:
-  sample:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - run:
-          name: checking
-          command: |
-            npm --version
-            node --version
+  # sample:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - run:
+  #         name: checking
+  #         command: |
+  #           npm --version
+  #           node --version
+  # 6.13.6
+# v13.8.0
+
           
   install-node-packages-frontend:
     docker:
