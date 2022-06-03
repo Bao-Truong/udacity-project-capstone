@@ -27,6 +27,8 @@ COPY ./backend/dist/ .
 
 RUN npm install pm2@latest -g
 
+RUN npm install
+
 EXPOSE 80 443 3030
 
 ENTRYPOINT ["pm2","start","npm","--","start"]
