@@ -32,4 +32,5 @@ RUN npm run build
 
 EXPOSE 80 443 3030
 
-ENTRYPOINT ["pm2-runtime","start","dist/main.js]
+#ENTRYPOINT ["pm2-runtime","start","dist/main.js]
+ENTRYPOINT ["npm","start"]
