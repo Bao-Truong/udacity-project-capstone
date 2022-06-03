@@ -5,7 +5,7 @@ services:
         build:
             context: ../
             dockerfile: ./dockerfiles/dockerfile.frontend
-        image: capstone_frontend:${CIRCLE_WORKFLOW_ID:0:7}
+        image: capstone_frontend:${tag}
         container_name: capstone_frontend
         tty: true
         restart: always
@@ -15,7 +15,7 @@ services:
         build:
             context: ../
             dockerfile: ./dockerfiles/dockerfile.backend
-        image: capstone_backend:${CIRCLE_WORKFLOW_ID:0:7}
+        image: capstone_backend:${tag}
         container_name: capstone_backend
         environment:
             - TYPEORM_CONNECTION 

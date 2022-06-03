@@ -93,7 +93,7 @@ jobs:
           name: Build docker images (backend and frontend)
           command: |
             cd dockerfiles
-            docker-compose build --no-cache
+            docker-compose build -e tag=${CIRCLE_WORKFLOW_ID:0:7} --no-cache
       - run:
           name: Login to ECR
           command: |
@@ -103,8 +103,13 @@ jobs:
           command: |
             # capstone_backend:latest is defined inside the docker-compose.yml file, make sure 2 places are matched.
             
-            docker tag capstone_frontend:latest 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
-            docker tag capstone_backend:latest 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
+            docker tag capstone_frontend:${CIRCLE_WORKFLOW_ID:0:7} 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:${CIRCLE_WORKFLOW_ID:0:7}
+            docker tag capstone_backend:${CIRCLE_WORKFLOW_ID:0:7} 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:${CIRCLE_WORKFLOW_ID:0:7}
+            docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:${CIRCLE_WORKFLOW_ID:0:7}
+            docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:${CIRCLE_WORKFLOW_ID:0:7}
+            
+            docker tag capstone_frontend:${CIRCLE_WORKFLOW_ID:0:7} 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
+            docker tag capstone_backend:${CIRCLE_WORKFLOW_ID:0:7} 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
             docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
             docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
             
