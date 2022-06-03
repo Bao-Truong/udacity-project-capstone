@@ -45,11 +45,12 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      run:
-        name: checking
-        command: |
-          npm --version
-          node --version
+      - run:
+          name: checking
+          command: |
+            npm --version
+            node --version
+          
   install-node-packages-frontend:
     docker:
       - image: circleci/node:13.8.0
