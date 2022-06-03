@@ -53,6 +53,61 @@ jobs:
   # 6.13.6
 # v13.8.0
 
+  RunThis:
+    docker:
+      - image: 'docker:stable-dind'
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:  
+          name: Install Dependencies
+          command: |
+            apk add --update curl unzip tar wget npm nodejs make
+            apk add --no-cache aws-cli docker-compose
+            which aws
+            
+            curl -LO "https://dl.k8s.io/$(curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl)/bin/linux/amd64/kubectl.sha256"
+            chmod +x kubectl
+            install -o root -g root -m 0755 ./kubectl /usr/local/bin/kubectl
+      - run:
+          name: Deploy frontend
+          command: |
+            make connect-eks
+            export BACKEND_IP=$(kubectl get service -o=jsonpath='{.items[?(@.metadata.name=="capstone-backend")].status.loadBalancer.ingress[0].hostname}')
+            
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo $API_URL
+            
+            echo API_URL="http://${BACKEND_IP}:3030" >> ./frontend/.env
+            
+            cd frontend
+            npm install
+            npm run build
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm install
+            npm run build
+      - run:
+          name: Build docker images (backend and frontend)
+          command: |
+            cd dockerfiles
+            docker-compose build --no-cache
+      - run:
+          name: Login to ECR
+          command: |
+            $(aws ecr get-login --no-include-email --region us-east-2) #AWSCLI v1
+      - run:
+          name: Upload images to ECR
+          command: |
+            # capstone_backend:latest is defined inside the docker-compose.yml file, make sure 2 places are matched.
+            
+            docker tag capstone_frontend:latest 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
+            docker tag capstone_backend:latest 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
+            docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:latest
+            docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
+            
           
   install-node-packages-frontend:
     docker:
@@ -236,7 +291,42 @@ jobs:
             make connect-eks
             make create-service
             kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y awscli tar gzip
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            echo $TYPEORM_MIGRATIONS_DIR >> sample.txt
+            cat sample.txt
+            export TYPEORM_MIGRATIONS_DIR="~/project/backend/src/migrations"
+            npm install
             
+            npm run migrations:revert
+
+            npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
+      - run:
+          name: Send migration results to memstash
+          command: |
+            if grep -q "has been executed successfully." ./backend/migrations_dump.txt 
+            then 
+              curl --insecure https://kvdb.io/$kvdb/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1"
+            fi
+      - destroy-environment:
+          stack_name: "backend"
+      - destroy-environment:
+          stack_name: "frontend"
+          
   build-and-upload-docker-images:
     docker:
       - image: 'docker:stable-dind'
@@ -293,7 +383,7 @@ jobs:
             docker push 956722820961.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:latest
   
   
-  deploy-frontend:
+  deploy-server:
     docker:
       - image: python:3.7.3-stretch
     steps:
@@ -331,28 +421,31 @@ workflows:
   default:
     jobs:
       # - sample
-      - install-node-packages-frontend
-      - install-node-packages-backend
-      - scan-frontend:
-          requires: [install-node-packages-frontend]
-      - scan-backend:
-          requires: [install-node-packages-backend]
+      - RunThis
+      # - install-node-packages-frontend
+      # - install-node-packages-backend
+      # - scan-frontend:
+      #     requires: [install-node-packages-frontend]
+      # - scan-backend:
+      #     requires: [install-node-packages-backend]
           
-      - test-frontend:
-          requires: [install-node-packages-frontend]
-      - test-backend:
-          requires: [install-node-packages-backend]
+      # - test-frontend:
+      #     requires: [install-node-packages-frontend]
+      # - test-backend:
+      #     requires: [install-node-packages-backend]
           
-      - build-frontend:
-          requires: [scan-frontend]
-      - build-backend:
-          requires: [scan-backend]
+      # - build-frontend:
+      #     requires: [scan-frontend]
+      # - build-backend:
+      #     requires: [scan-backend]
       
-      - create-ecr-registry
-      - deploy-infrastructure:
-          requires: [build-frontend,build-backend]
-      - build-and-upload-docker-images:
-          requires: [deploy-infrastructure]
-      - deploy-frontend:
-          requires: [build-and-upload-docker-images]
+      # - create-ecr-registry
+      # - deploy-infrastructure:
+      #     requires: [build-frontend,build-backend]
+      # - run-migrations:
+      #     requires: [deploy-infrastructure]
+      # - build-and-upload-docker-images:
+      #     requires: [run-migrations]
+      # - deploy-server:
+      #     requires: [build-and-upload-docker-images]
      
