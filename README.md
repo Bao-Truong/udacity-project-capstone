@@ -12,39 +12,11 @@ In this project, you will prove your mastery of the following learning objective
 
 ### Instructions
 
-* [Selling CI/CD](instructions/0-selling-cicd.md)
 * [Getting Started](instructions/1-getting-started.md)
 * [Deploying Working, Trustworthy Software](instructions/2-deploying-trustworthy-code.md)
 * [Configuration Management](instructions/3-configuration-management.md)
-* [Turn Errors into Sirens](instructions/4-turn-errors-into-sirens.md)
 
-### Project Submission
 
-For your submission, please submit the following:
-
-- A text file named `urls.txt` including:
-  1. Public Url to GitHub repository (not private) [URL01]
-  1. Public URL for your S3 Bucket (aka, your green candidate front-end) [URL02]
-  1. Public URL for your CloudFront distribution (aka, your blue production front-end) [URL03]
-  1. Public URLs to deployed application back-end in EC2 [URL04]
-  1. Public URL to your Prometheus Server [URL05]
-- Your screenshots in JPG or PNG format, named using the screenshot number listed in the instructions. These screenshots should be included in your code repository in the root folder.
-  1. Job failed because of compile errors. [SCREENSHOT01]
-  1. Job failed because of unit tests. [SCREENSHOT02]
-  1. Job that failed because of vulnerable packages. [SCREENSHOT03]
-  1. An alert from one of your failed builds. [SCREENSHOT04]
-  1. Appropriate job failure for infrastructure creation. [SCREENSHOT05]
-  1. Appropriate job failure for the smoke test job. [SCREENSHOT06]
-  1. Successful rollback after a failed smoke test. [SCREENSHOT07]  
-  1. Successful promotion job. [SCREENSHOT08]
-  1. Successful cleanup job. [SCREENSHOT09]
-  1. Only deploy on pushed to `master` branch. [SCREENSHOT10]
-  1. Provide a screenshot of a graph of your EC2 instance including available memory, available disk space, and CPU usage. [SCREENSHOT11]
-  1. Provide a screenshot of an alert that was sent by Prometheus. [SCREENSHOT12]
--
-- Your presentation should be in PDF format named "presentation.pdf" and should be included in your code repository root folder. 
-
-Before you submit your project, please check your work against the project rubric. If you haven’t satisfied each criterion in the rubric, then revise your work so that you have met all the requirements. 
 
 ### Built With
 
@@ -52,8 +24,96 @@ Before you submit your project, please check your work against the project rubri
 - [Amazon AWS](https://aws.amazon.com/) - Cloud services
 - [AWS CLI](https://aws.amazon.com/cli/) - Command-line tool for AWS
 - [CloudFormation](https://aws.amazon.com/cloudformation/) - Infrastrcuture as code
-- [Ansible](https://www.ansible.com/) - Configuration management tool
-- [Prometheus](https://prometheus.io/) - Monitoring tool
+- [Kubernetes](https://kubernetes.io/) - Container Orchestation
+
+## Setup CircleCI 
+**[Important]** Go to AWS Console, Create a Free tier Postgresql RDS(latest version) running on T3.micro, Recommend to run on public access for testing, change to private connect after you sure it is working correctly.
+
+Required Evironment Variables:
+```bash
+- AWS_ACCESS_KEY_ID="Your IAM Access Key"
+- AWS_SECRET_ACCESS_KEY="Your IAM Secret Access Key"
+- AWS_DEFAULT_REGION="us-east-2"
+- TYPEORM_CONNECTION="postgres"
+- TYPEORM_ENTITIES="./src/modules/domain/**/*.entity.ts"
+- TYPEORM_HOST="PostgresSQL Endpoint you manually created"
+- TYPEORM_PORT="5432"
+- TYPEORM_USERNAME="postgres"(default)
+- TYPEORM_PASSWORD="mypassword"
+- TYPEORM_DATABASE="postgres" (default)
+- TYPEORM_MIGRATIONS="./src/migrations/*.ts"
+- TYPEORM_MIGRATIONS_DIR="./src/migrations"
+```
+
+## Install
+Manually change these setting below:
+1. deployment/k8s/deployment.yml: change the image URI for frontend and backend in line 25, 55. For example:
+
+```yml
+- image: <AWS AcccountID>.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-frontend:FRONTEND_IMAGE_VERSION
+- image: <AWS AcccountID>.dkr.ecr.us-east-2.amazonaws.com/capstone-ecr-backend:BACKEND_IMAGE_VERSION
+```
+2. deployment/cfn/ecr/yml: change the AWSAccountID Parameters
+3. deployment/cfn/eks-nodegroup.yml: change the NodeRole ARN, Create if not existed
+4. deployment/cfn/eks.yml: Config the EKS cluster version (default 1.21) and change the RoleArn ARN, Create if not existed
+
+
+Create ECR:
+> `make create-ecr` 
+
+Create Networking:
+>`make create-network`
+
+Create EKS Cluster: (take sometime to create, resource include: 1 EKS Cluster, 1 NodeGroup, 2 Addon)
+>`make create-eks`
+
+Connect to EKS cluster:
+>`make connect-eks`
+
+Run Circleci Pipeline:
+> When ever you commit code it will trigger the circleci pipeline, the pipeline will run the ci/cd process includes: installing dependencies, testing, linting, build sourcecode, building and uploading the docker images into ECR registry and apply the deployment.yml and service.yml onto the EKS cluster.
+
+## Get K8s Service endpoint:
+
+Connect to the EKS if not already:
+>`make connect-eks` 
+
+or
+
+>`aws eks --region <your region> update-kubeconfig --name <EKS cluster name>`
+
+Get service info, you will see a lot of service created in the EKS cluster, pay attention to the **capstone-frontend** and **capstone-backend** service, look fot the **External-IP** of the capstone-frontend, paste it on the brower, Command: 
+>`kubectl get service`
+
+## Cleanup
+Remove the service and delopment on EKS cluster:
+```bash
+make connect-eks
+kubectl delete -f deployment/k8s/deployment.yml
+kubectl delete -f deployment/k8s/service.yml
+```
+Remove ALB and Target Group:
+> Login to AWS Console and deleted the related resources (have 'capstone' in its name)
+
+Remove the Cloudformation Stacks:
+```bash
+aws cloudformation delete-stack --region us-east-2 --stack-name capstone-eks-nodegroup 
+aws cloudformation delete-stack --region us-east-2 --stack-name capstone-eks-addon
+aws cloudformation delete-stack --region us-east-2 --stack-name capstone-eks-cluster
+aws cloudformation delete-stack --region us-east-2 --stack-name capstone-ecr-backend
+aws cloudformation delete-stack --region us-east-2 --stack-name capstone-ecr-frontend
+aws cloudformation delete-stack --region us-east-2 --stack-name capstone-networking
+```
+
+## Code Structure
+Folders:
+```
+├── backend:      backend sourcecode
+├── deployment:   store deployment stage required files (k8s, cfn)
+├── dockerfiles:  store dockerfile to build docker images
+├── frontend:     frontend sourcecode
+└── instructions: instructions for better understanding
+```
 
 ### License
 
