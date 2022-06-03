@@ -326,7 +326,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - sample
+      # - sample
       - install-node-packages-frontend
       - install-node-packages-backend
       - scan-frontend:
